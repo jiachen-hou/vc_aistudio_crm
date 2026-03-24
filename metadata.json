@@ -1,0 +1,5 @@
+{
+  "name": "Supabase CRM",
+  "description": "A customer management system with journey tracking, powered by Supabase.",
+  "requestFramePermissions": ["microphone"]
+}
