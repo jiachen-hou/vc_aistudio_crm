@@ -4,7 +4,6 @@ import { supabase, type Customer, type Journey } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft, Calendar, FileText, Plus, MapPin, Mic, Square, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { GoogleGenAI } from '@google/genai';
 
 export function CustomerDetail() {
   const { id } = useParams<{ id: string }>();
@@ -22,9 +21,7 @@ export function CustomerDetail() {
 
   // Audio recording state
   const [isRecording, setIsRecording] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     if (id) {
@@ -98,77 +95,55 @@ export function CustomerDetail() {
     }
   };
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
+  const startRecording = () => {
+    // @ts-ignore - SpeechRecognition is not standard in all TS environments
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert('Your browser does not support speech recognition. Please use Chrome, Edge, or Safari.');
+      return;
+    }
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event: any) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
         }
-      };
+      }
+      if (finalTranscript) {
+        setTranscript(prev => prev ? `${prev} ${finalTranscript}` : finalTranscript);
+      }
+    };
 
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        await transcribeAudio(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
-      };
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error', event.error);
+      if (event.error !== 'no-speech') {
+        stopRecording();
+      }
+    };
 
-      mediaRecorder.start();
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    try {
+      recognition.start();
+      recognitionRef.current = recognition;
       setIsRecording(true);
     } catch (error) {
-      console.error('Error accessing microphone:', error);
-      alert('Could not access microphone. Please check permissions.');
+      console.error('Error starting recording:', error);
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
       setIsRecording(false);
-    }
-  };
-
-  const transcribeAudio = async (audioBlob: Blob) => {
-    setIsTranscribing(true);
-    try {
-      const base64data = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(audioBlob);
-        reader.onloadend = () => {
-          const result = reader.result as string;
-          resolve(result.split(',')[1]);
-        };
-        reader.onerror = reject;
-      });
-      
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('Gemini API key is missing. Please check your environment variables.');
-      }
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: {
-          parts: [
-            { text: 'Please transcribe the following audio accurately. Only output the transcription, nothing else.' },
-            { inlineData: { mimeType: audioBlob.type || 'audio/webm', data: base64data } }
-          ]
-        }
-      });
-      
-      const transcription = response.text?.trim() || '';
-      if (transcription) {
-        setTranscript(prev => prev ? `${prev}\n${transcription}` : transcription);
-      }
-    } catch (error: any) {
-      console.error('Transcription error details:', error);
-      alert(`Failed to transcribe audio: ${error.message || 'Unknown error'}. Please check the console for details.`);
-    } finally {
-      setIsTranscribing(false);
     }
   };
 
@@ -305,19 +280,13 @@ export function CustomerDetail() {
                       <button
                         type="button"
                         onClick={isRecording ? stopRecording : startRecording}
-                        disabled={isTranscribing}
                         className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md border ${
                           isRecording 
                             ? 'border-[#ff8182] text-[#cf222e] bg-[#ffebe9] hover:bg-[#ffdce0]' 
                             : 'border-[#d0d7de] text-[#24292f] bg-[#f6f8fa] hover:bg-[#f3f4f6]'
-                        } transition-colors disabled:opacity-50`}
+                        } transition-colors`}
                       >
-                        {isTranscribing ? (
-                          <>
-                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                            Transcribing...
-                          </>
-                        ) : isRecording ? (
+                        {isRecording ? (
                           <>
                             <Square className="w-3 h-3 mr-1 fill-current" />
                             Stop Recording
