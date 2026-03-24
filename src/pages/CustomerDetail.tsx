@@ -145,7 +145,11 @@ export function CustomerDetail() {
         reader.onerror = reject;
       });
       
-      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY });
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error('Gemini API key is missing. Please check your environment variables.');
+      }
+      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: {
@@ -160,9 +164,9 @@ export function CustomerDetail() {
       if (transcription) {
         setTranscript(prev => prev ? `${prev}\n${transcription}` : transcription);
       }
-    } catch (error) {
-      console.error('Transcription error:', error);
-      alert('Failed to transcribe audio.');
+    } catch (error: any) {
+      console.error('Transcription error details:', error);
+      alert(`Failed to transcribe audio: ${error.message || 'Unknown error'}. Please check the console for details.`);
     } finally {
       setIsTranscribing(false);
     }
