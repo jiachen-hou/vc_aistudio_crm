@@ -90,9 +90,9 @@ export function CustomerDetail() {
 
         attachment_url = publicUrl;
         attachment_name = attachment.name;
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error uploading attachment:', error);
-        alert('Failed to upload attachment. Make sure you have created the "attachments" bucket in Supabase.');
+        alert(`Upload failed: ${error.message || 'Unknown error'}. Please check your Supabase Storage Policies (RLS) to ensure authenticated users have INSERT permissions for the "attachments" bucket.`);
         setIsUploading(false);
         return;
       }
