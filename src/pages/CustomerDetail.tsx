@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase, type Customer, type Journey } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, Calendar, FileText, Plus, MapPin, Mic, Square, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar, FileText, Plus, MapPin, Mic, Square, Loader2, Paperclip, X, Download } from 'lucide-react';
 import { format } from 'date-fns';
 
 export function CustomerDetail() {
@@ -18,6 +18,8 @@ export function CustomerDetail() {
   const [notes, setNotes] = useState('');
   const [transcript, setTranscript] = useState('');
   const [nextStep, setNextStep] = useState('');
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Audio recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -66,6 +68,36 @@ export function CustomerDetail() {
       ? `${notes}\n\n--- Audio Transcript ---\n${transcript}`
       : notes;
 
+    setIsUploading(true);
+    let attachment_url = null;
+    let attachment_name = null;
+
+    if (attachment) {
+      try {
+        const fileExt = attachment.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${user.id}/${id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('attachments')
+          .upload(filePath, attachment);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('attachments')
+          .getPublicUrl(filePath);
+
+        attachment_url = publicUrl;
+        attachment_name = attachment.name;
+      } catch (error) {
+        console.error('Error uploading attachment:', error);
+        alert('Failed to upload attachment. Make sure you have created the "attachments" bucket in Supabase.');
+        setIsUploading(false);
+        return;
+      }
+    }
+
     try {
       const { data, error } = await supabase
         .from('journeys')
@@ -76,6 +108,8 @@ export function CustomerDetail() {
             visit_date: visitDate,
             notes: finalNotes,
             next_step: nextStep,
+            attachment_url,
+            attachment_name,
           }
         ])
         .select();
@@ -88,10 +122,13 @@ export function CustomerDetail() {
         setNotes('');
         setTranscript('');
         setNextStep('');
+        setAttachment(null);
       }
     } catch (error) {
       console.error('Error adding journey:', error);
       alert('Failed to add journey record');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -244,6 +281,20 @@ export function CustomerDetail() {
                                 </div>
                               </div>
                             )}
+                            {journey.attachment_url && (
+                              <div className="mt-2">
+                                <a 
+                                  href={journey.attachment_url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#24292f] bg-white border border-[#d0d7de] rounded-md hover:bg-[#f6f8fa] transition-colors"
+                                >
+                                  <Paperclip className="w-4 h-4 text-[#57606a]" />
+                                  <span className="truncate max-w-[200px]">{journey.attachment_name || 'Attachment'}</span>
+                                  <Download className="w-4 h-4 text-[#57606a] ml-1" />
+                                </a>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -305,12 +356,52 @@ export function CustomerDetail() {
                     <label className="block text-sm font-medium text-[#24292f]">Next Step (Optional)</label>
                     <input type="text" value={nextStep} onChange={e => setNextStep(e.target.value)} className="mt-1 block w-full border border-[#d0d7de] rounded-md shadow-sm py-1.5 px-3 bg-[#f6f8fa] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0969da] focus:border-[#0969da] sm:text-sm transition-colors" placeholder="e.g., Send proposal by Friday" />
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#24292f] mb-1">Attachment (Optional)</label>
+                    {attachment ? (
+                      <div className="flex items-center justify-between p-2 border border-[#d0d7de] rounded-md bg-[#f6f8fa]">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <Paperclip className="w-4 h-4 text-[#57606a] flex-shrink-0" />
+                          <span className="text-sm text-[#24292f] truncate">{attachment.name}</span>
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => setAttachment(null)}
+                          className="p-1 text-[#57606a] hover:text-[#cf222e] rounded-md hover:bg-[#ffebe9] transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-[#d0d7de] border-dashed rounded-md hover:bg-[#f6f8fa] transition-colors relative">
+                        <div className="space-y-1 text-center">
+                          <Paperclip className="mx-auto h-8 w-8 text-[#57606a]" />
+                          <div className="flex text-sm text-[#57606a] justify-center">
+                            <label htmlFor="file-upload" className="relative cursor-pointer bg-transparent rounded-md font-medium text-[#0969da] hover:text-[#0969da]/80 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#0969da]">
+                              <span>Upload a file</span>
+                              <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={e => setAttachment(e.target.files?.[0] || null)} />
+                            </label>
+                            <p className="pl-1">or drag and drop</p>
+                          </div>
+                          <p className="text-xs text-[#57606a]">Any file up to 10MB</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-                    <button type="submit" className="w-full inline-flex justify-center rounded-md border border-[rgba(27,31,36,0.15)] shadow-sm px-4 py-1.5 bg-[#2da44e] text-sm font-medium text-white hover:bg-[#2c974b] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2da44e] sm:col-start-2 transition-colors">
-                      Save Record
+                    <button type="submit" disabled={isUploading} className="w-full inline-flex justify-center items-center rounded-md border border-[rgba(27,31,36,0.15)] shadow-sm px-4 py-1.5 bg-[#2da44e] text-sm font-medium text-white hover:bg-[#2c974b] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2da44e] sm:col-start-2 transition-colors disabled:opacity-50">
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Save Record'
+                      )}
                     </button>
-                    <button type="button" onClick={() => setShowModal(false)} className="mt-3 w-full inline-flex justify-center rounded-md border border-[rgba(27,31,36,0.15)] shadow-sm px-4 py-1.5 bg-[#f6f8fa] text-sm font-medium text-[#24292f] hover:bg-[#f3f4f6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0969da] sm:mt-0 sm:col-start-1 transition-colors">
+                    <button type="button" onClick={() => setShowModal(false)} disabled={isUploading} className="mt-3 w-full inline-flex justify-center rounded-md border border-[rgba(27,31,36,0.15)] shadow-sm px-4 py-1.5 bg-[#f6f8fa] text-sm font-medium text-[#24292f] hover:bg-[#f3f4f6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0969da] sm:mt-0 sm:col-start-1 transition-colors disabled:opacity-50">
                       Cancel
                     </button>
                   </div>

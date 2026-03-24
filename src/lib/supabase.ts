@@ -27,5 +27,7 @@ export type Journey = {
   visit_date: string;
   notes: string;
   next_step: string | null;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
   created_at: string;
 };
