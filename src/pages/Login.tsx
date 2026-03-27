@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Users, Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Lock, Loader2 } from 'lucide-react';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -44,8 +44,8 @@ export function Login() {
     <div className="min-h-screen bg-[#f6f8fa] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-[#24292f] rounded-full flex items-center justify-center shadow-sm">
-            <Users className="w-6 h-6 text-white" />
+          <div className="w-20 h-20 bg-[#24292f] rounded-full flex items-center justify-center shadow-sm">
+            <img src="/影刀.svg" alt="影刀 Logo" className="h-6 w-auto" />
           </div>
         </div>
         <h2 className="mt-6 text-center text-2xl font-light tracking-tight text-[#24292f]">

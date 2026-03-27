@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, Users, Camera } from 'lucide-react';
+import { LogOut, Camera } from 'lucide-react';
 
 export function Layout() {
   const { signOut, user } = useAuth();
@@ -71,8 +71,8 @@ export function Layout() {
           <div className="flex justify-between h-16">
             <div className="flex">
               <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-white" />
+                <div className="flex items-center justify-center">
+                  <img src="/影刀.svg" alt="影刀 Logo" className="h-7 w-auto" />
                 </div>
                 <span className="font-semibold text-lg text-white">CRM</span>
               </Link>
