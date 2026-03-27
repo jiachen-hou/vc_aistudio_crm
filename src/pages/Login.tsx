@@ -25,7 +25,7 @@ export function Login() {
           password,
         });
         if (error) throw error;
-        setMessage('Successfully signed up! Please check your email for the confirmation link.');
+        setMessage('注册成功！请检查您的邮箱以获取确认链接。');
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -34,7 +34,7 @@ export function Login() {
         if (error) throw error;
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred during authentication.');
+      setError(err.message || '认证过程中发生错误。');
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ export function Login() {
           </div>
         </div>
         <h2 className="mt-6 text-center text-2xl font-light tracking-tight text-[#24292f]">
-          {isSignUp ? 'Create your account' : 'Sign in to your account'}
+          {isSignUp ? '创建您的账户' : '登录您的账户'}
         </h2>
       </div>
 
@@ -70,7 +70,7 @@ export function Login() {
               
               <div>
                 <label className="block text-sm font-medium text-[#24292f] mb-1">
-                  Email address
+                  邮箱地址
                 </label>
                 <div className="relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -88,7 +88,7 @@ export function Login() {
 
               <div>
                 <label className="block text-sm font-medium text-[#24292f] mb-1">
-                  Password
+                  密码
                 </label>
                 <div className="relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -113,7 +113,7 @@ export function Login() {
                   {loading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
-                    isSignUp ? 'Sign up' : 'Sign in'
+                    isSignUp ? '注册' : '登录'
                   )}
                 </button>
               </div>
@@ -121,13 +121,13 @@ export function Login() {
           </div>
 
           <div className="border border-[#d0d7de] rounded-md p-4 text-center text-sm text-[#24292f] bg-white">
-            {isSignUp ? 'Already have an account?' : 'New to CRM?'}
+            {isSignUp ? '已有账户？' : 'CRM 新用户？'}
             {' '}
             <button
               onClick={() => setIsSignUp(!isSignUp)}
               className="text-[#0969da] hover:underline focus:outline-none"
             >
-              {isSignUp ? 'Sign in' : 'Create an account'}
+              {isSignUp ? '登录' : '创建账户'}
             </button>
           </div>
         </div>

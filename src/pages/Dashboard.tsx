@@ -72,7 +72,7 @@ export function Dashboard() {
       }
     } catch (error) {
       console.error('Error adding customer:', error);
-      alert('Failed to add customer');
+      alert('添加客户失败');
     }
   };
 
@@ -85,9 +85,9 @@ export function Dashboard() {
     <div className="space-y-6">
       <div className="sm:flex sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-normal text-[#24292f]">Customers</h1>
+          <h1 className="text-2xl font-normal text-[#24292f]">客户</h1>
           <p className="mt-1 text-sm text-[#57606a]">
-            Manage your clients and track their journeys.
+            管理您的客户并追踪他们的旅程。
           </p>
         </div>
         <div className="mt-4 sm:mt-0">
@@ -96,7 +96,7 @@ export function Dashboard() {
             className="inline-flex items-center justify-center px-4 py-1.5 border border-[rgba(27,31,36,0.15)] text-sm font-medium rounded-md shadow-sm text-white bg-[#2da44e] hover:bg-[#2c974b] focus:outline-none focus:ring-2 focus:ring-[#2da44e] focus:ring-offset-2 transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Customer
+            添加客户
           </button>
         </div>
       </div>
@@ -110,7 +110,7 @@ export function Dashboard() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="block w-full pl-9 pr-3 py-1.5 border border-[#d0d7de] rounded-md leading-5 bg-[#f6f8fa] placeholder-[#57606a] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0969da] focus:border-[#0969da] sm:text-sm transition-colors"
-          placeholder="Search customers..."
+          placeholder="搜索客户"
         />
       </div>
 
@@ -123,7 +123,7 @@ export function Dashboard() {
           <ul className="divide-y divide-[#d0d7de]">
             {filteredCustomers.length === 0 ? (
               <li className="px-4 py-8 text-center text-[#57606a]">
-                No customers found. Add your first customer to get started!
+                未找到客户。添加您的第一个客户以开始使用！
               </li>
             ) : (
               filteredCustomers.map((customer) => (
@@ -136,7 +136,7 @@ export function Dashboard() {
                         </p>
                         <div className="ml-2 flex-shrink-0 flex">
                           <p className="px-2 py-0.5 inline-flex text-xs leading-4 font-medium rounded-full border border-[#d0d7de] text-[#57606a]">
-                            {customer.status}
+                            {customer.status === 'Lead' ? '潜在客户' : customer.status === 'Active' ? '活跃' : customer.status === 'Inactive' ? '非活跃' : customer.status}
                           </p>
                         </div>
                       </div>
@@ -179,38 +179,38 @@ export function Dashboard() {
             <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
             <div className="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl border border-[#d0d7de] transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
               <div>
-                <h3 className="text-lg leading-6 font-semibold text-[#24292f] mb-4">Add New Customer</h3>
+                <h3 className="text-lg leading-6 font-semibold text-[#24292f] mb-4">添加新客户</h3>
                 <form onSubmit={handleAddCustomer} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#24292f]">Name *</label>
+                    <label className="block text-sm font-medium text-[#24292f]">姓名 *</label>
                     <input type="text" required value={name} onChange={e => setName(e.target.value)} className="mt-1 block w-full border border-[#d0d7de] rounded-md shadow-sm py-1.5 px-3 bg-[#f6f8fa] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0969da] focus:border-[#0969da] sm:text-sm transition-colors" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#24292f]">Company</label>
+                    <label className="block text-sm font-medium text-[#24292f]">公司</label>
                     <input type="text" value={company} onChange={e => setCompany(e.target.value)} className="mt-1 block w-full border border-[#d0d7de] rounded-md shadow-sm py-1.5 px-3 bg-[#f6f8fa] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0969da] focus:border-[#0969da] sm:text-sm transition-colors" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#24292f]">Email</label>
+                    <label className="block text-sm font-medium text-[#24292f]">邮箱</label>
                     <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="mt-1 block w-full border border-[#d0d7de] rounded-md shadow-sm py-1.5 px-3 bg-[#f6f8fa] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0969da] focus:border-[#0969da] sm:text-sm transition-colors" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#24292f]">Phone</label>
+                    <label className="block text-sm font-medium text-[#24292f]">电话</label>
                     <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} className="mt-1 block w-full border border-[#d0d7de] rounded-md shadow-sm py-1.5 px-3 bg-[#f6f8fa] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0969da] focus:border-[#0969da] sm:text-sm transition-colors" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#24292f]">Status</label>
+                    <label className="block text-sm font-medium text-[#24292f]">状态</label>
                     <select value={status} onChange={e => setStatus(e.target.value)} className="mt-1 block w-full border border-[#d0d7de] rounded-md shadow-sm py-1.5 px-3 bg-[#f6f8fa] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0969da] focus:border-[#0969da] sm:text-sm transition-colors">
-                      <option>Lead</option>
-                      <option>Active</option>
-                      <option>Inactive</option>
+                      <option value="Lead">潜在客户</option>
+                      <option value="Active">活跃</option>
+                      <option value="Inactive">非活跃</option>
                     </select>
                   </div>
                   <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
                     <button type="submit" className="w-full inline-flex justify-center rounded-md border border-[rgba(27,31,36,0.15)] shadow-sm px-4 py-1.5 bg-[#2da44e] text-sm font-medium text-white hover:bg-[#2c974b] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2da44e] sm:col-start-2 transition-colors">
-                      Save
+                      保存
                     </button>
                     <button type="button" onClick={() => setShowModal(false)} className="mt-3 w-full inline-flex justify-center rounded-md border border-[rgba(27,31,36,0.15)] shadow-sm px-4 py-1.5 bg-[#f6f8fa] text-sm font-medium text-[#24292f] hover:bg-[#f3f4f6] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0969da] sm:mt-0 sm:col-start-1 transition-colors">
-                      Cancel
+                      取消
                     </button>
                   </div>
                 </form>

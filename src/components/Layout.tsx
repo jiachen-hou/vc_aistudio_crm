@@ -20,6 +20,12 @@ export function Layout() {
               </Link>
             </div>
             <div className="flex items-center gap-4">
+              <img
+                src="/user-avatar.png"
+                alt="Avatar"
+                className="w-8 h-8 rounded-full border border-gray-400"
+                referrerPolicy="no-referrer"
+              />
               <span className="text-sm text-gray-300 hidden sm:block">
                 {user?.email}
               </span>
@@ -28,7 +34,7 @@ export function Layout() {
                 className="inline-flex items-center gap-2 px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-300 hover:text-white focus:outline-none transition"
               >
                 <LogOut className="w-4 h-4" />
-                Sign Out
+                退出登录
               </button>
             </div>
           </div>

@@ -7,17 +7,17 @@ export function SetupInstructions() {
       <div className="max-w-3xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="bg-blue-600 p-6 text-white flex items-center gap-3">
           <Database className="w-8 h-8" />
-          <h1 className="text-2xl font-bold">Supabase Setup Required</h1>
+          <h1 className="text-2xl font-bold">需要配置 Supabase</h1>
         </div>
         
         <div className="p-8 space-y-8 text-gray-700">
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <KeyRound className="w-5 h-5 text-blue-600" />
-              1. Environment Variables
+              1. 环境变量
             </h2>
             <p className="mb-4">
-              Please add your Supabase credentials to the AI Studio Secrets panel or your <code>.env</code> file:
+              请将您的 Supabase 凭证添加到 AI Studio Secrets 面板或您的 <code>.env</code> 文件中：
             </p>
             <div className="bg-gray-100 p-4 rounded-lg font-mono text-sm">
               VITE_SUPABASE_URL="your-project-url"<br/>
@@ -28,10 +28,10 @@ export function SetupInstructions() {
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Server className="w-5 h-5 text-blue-600" />
-              2. Database Schema
+              2. 数据库结构
             </h2>
             <p className="mb-4">
-              Run the following SQL in your Supabase SQL Editor to create the necessary tables and Row Level Security (RLS) policies:
+              在您的 Supabase SQL 编辑器中运行以下 SQL 以创建必要的表和行级安全 (RLS) 策略：
             </p>
             <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm overflow-x-auto">
 {`-- Create customers table
